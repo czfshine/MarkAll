@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 '''import someting tools'''
-from base import *
+from base import importer,bkdata
 import re
 import hashlib
 import xml.dom.minidom
-
 
 class chrome(importer):
     ''' import google chrome bookmark file to a tree'''
@@ -13,7 +12,6 @@ class chrome(importer):
         importer.__init__(self)
         self.token=[]#token
         self.folders=[]#FILO Stack of parent folders
-        self.md5 = hashlib.md5()
         
     #==pasrer start 
     def importfromfile(self,filename):
@@ -21,7 +19,7 @@ class chrome(importer):
         with open(filename,"r") as file:
             data = file.read()
             self.lines=data.split("\n")#TODO: if not has \n
-            self.tree.create_node(0,0,data=bkdata({"url":"ll"}))# the root 
+            self.tree.create_node(0,0,data=bkdata({"title":"root"}))# the root 
             self.totree(self.lines)
             
     def totree(self,lines):
@@ -49,7 +47,7 @@ class chrome(importer):
                     self.ismark(k[0],k[2])
                     
     def ismark(self,index,line):
-
+        
         #very stupid
         x=line.replace("<DT>","<xml>").replace("</A>","</A></xml>").replace("&","&amp;")
         dom = xml.dom.minidom.parseString(x)
@@ -57,39 +55,65 @@ class chrome(importer):
         
         #some data
         data={
-        "title":A.firstChild.data or "",
+        "title":A.firstChild.data or "",#????
         "url":A.getAttribute("HREF") , #must !!!
         "add_date":A.getAttribute("ADD_DATE") or 0,
         "last_visit":A.getAttribute("LAST_VISIT") or 0,
         "last_modified":A.getAttribute("LAST_MODIFIED") or 0,
         # what this ?
         "lovefav":A.getAttribute("LOVEFAV") or 0,
-        "fav_pos":A.getAttribute("FAV_POS"),
+        "fav_pos":A.getAttribute("FAV_POS")or 0,
         #end
         }
         
-        #get the hash 
-        self.md5.update(self.geturlbody(data["url"]).encode("gbk"))
-        index=self.md5.hexdigest() 
+        #get the hash as the UID
+        md5 = hashlib.md5()
+        md5.update(self.geturlbody(data["url"]).encode("gbk"))#in window 
+        index=md5.hexdigest() 
+        md5=None #clean
         data["index"]=index
+        
         self.tree.create_node(index,index,parent=self.folders[len(self.folders)-1],data=bkdata(data))
     
     def isfolder(self,index,line):
-        #HERE!!!
-        i=index-1
-        if len(self.folders)==0:
-            self.tree.create_node(i,i,parent=0,data=bkdata({"url":""}))
+        
+        upline=self.lines[index-1]
+        
+        #stupid too
+        if re.search(".*<H1>.*",upline):
+            x=upline.replace("<H1>","<xml><H3>").replace("</H1>","</H3></xml>")
         else:
-            self.tree.create_node(i,i,parent=self.folders[len(self.folders)-1],data=bkdata({"url":""}))
-        self.folders.append(i)
+            x=upline.replace("<DT>","<xml>").replace("</H3>","</H3></xml>").replace("FOLDED","")
+        print x
+        
+        dom = xml.dom.minidom.parseString(x)
+        H3 = dom.getElementsByTagName("H3")[0]
+        
+        data={
+        "title":H3.firstChild.data or "folder",
+        "add_date":H3.getAttribute("ADD_DATE") or 0,
+        "fav_pos":H3.getAttribute("FAV_POS")or 0,
+        #end
+        }
+        
+        md5=hashlib.md5()
+        md5.update(data["title"].encode("gbk"))
+        index=md5.hexdigest() 
+        data["index"]=index
+        
+        if len(self.folders)==0:
+            self.tree.create_node(index,index,parent=0,data=bkdata(data))
+        else:
+            self.tree.create_node(index,index,parent=self.folders[len(self.folders)-1],data=bkdata(data))
+        self.folders.append(index)
         
     def outfolder(self):
         self.folders.pop()
     #===== pasrer end
-        
+
 
 if __name__=="__main__":
     test=chrome()
     test.importfromfile("chrome_test.html")
-    test.showtree()
+    test.showtree("title")
     
