@@ -69,7 +69,7 @@ class chrome(importer):
         #get the hash as the UID
         md5 = hashlib.md5()
         md5.update(self.geturlbody(data["url"]).encode("gbk"))#in window 
-        index=md5.hexdigest() 
+        index=index
         md5=None #clean
         data["index"]=index
         
@@ -84,7 +84,6 @@ class chrome(importer):
             x=upline.replace("<H1>","<xml><H3>").replace("</H1>","</H3></xml>")
         else:
             x=upline.replace("<DT>","<xml>").replace("</H3>","</H3></xml>").replace("FOLDED","")
-        print x
         
         dom = xml.dom.minidom.parseString(x)
         H3 = dom.getElementsByTagName("H3")[0]
@@ -98,7 +97,7 @@ class chrome(importer):
         
         md5=hashlib.md5()
         md5.update(data["title"].encode("gbk"))
-        index=md5.hexdigest() 
+        index=index
         data["index"]=index
         
         if len(self.folders)==0:

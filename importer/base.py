@@ -9,6 +9,8 @@ class bkdata(object):
     def __init__(self,data):
         for k in data :
             setattr(self,k,data[k])#then it can getattr :(
+    def __str__(self):
+        return "test"
 
 class importer(object):
     '''importer base'''
@@ -17,7 +19,7 @@ class importer(object):
         pass
     
     def gettree(self):
-        return self.tree()
+        return self.tree
         
     def showtree(self, data_property= None):
         self.tree.show( data_property= data_property)
@@ -49,3 +51,5 @@ class importer(object):
                  
     def apply(self,fn):
         pass
+
+print bkdata({})
