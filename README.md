@@ -23,7 +23,7 @@ c.importfromfile("./importer/chrome_test.html")
 #c.showtree("title")
 
 # the bookmark tree
-t=test.gettree()
+t=c.gettree()
 
 #export to kityminder json
 k=kity.kity()
