@@ -9,8 +9,8 @@ class bkdata(object):
     def __init__(self,data):
         for k in data :
             setattr(self,k,data[k])#then it can getattr :(
-    def __str__(self):
-        return "test"
+    def to_dict(self):
+        return self.__dict__ 
 
 class importer(object):
     '''importer base'''
@@ -51,5 +51,3 @@ class importer(object):
                  
     def apply(self,fn):
         pass
-
-print bkdata({})

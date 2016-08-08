@@ -18,3 +18,4 @@ import exporter.kity as kity
 k=kity.kity()
 
 k.importfromtree(t,None)
+print "editor.minder.importData(\"json\",'"+k.getjson()+"')"
