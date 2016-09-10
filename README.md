@@ -9,7 +9,7 @@ A tool for browser bookmarks.
 
 #### from chrome to kity minder :
 * clone this repoository into you PC
-* install requirable library
+* install requirable library `pip install treelib `
 * run follow code
 ```python 
 
