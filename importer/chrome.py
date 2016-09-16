@@ -5,7 +5,7 @@ from base import importer,bkdata
 import re
 import hashlib
 import xml.dom.minidom
-
+from treelib import *
 class chrome(importer):
     ''' import google chrome bookmark file to a tree'''
     def __init__(self):
@@ -17,6 +17,7 @@ class chrome(importer):
     def importfromfile(self,filename):
         '''import file to a tree'''
         with open(filename,"r") as file:
+            self.tree=Tree()
             data = file.read()
             self.lines=data.split("\n")#TODO: if not has \n
             self.tree.create_node(0,0,data=bkdata({"title":"root"}))# the root 
@@ -53,9 +54,11 @@ class chrome(importer):
         dom = xml.dom.minidom.parseString(x)
         A = dom.getElementsByTagName("A")[0]
         
+        if A.firstChild==None :
+            title ="Untitled"
         #some data
         data={
-        "title":A.firstChild.data or "",#????
+        "title":A.firstChild.data or "" if  A.firstChild  else title,#????
         "url":A.getAttribute("HREF") , #must !!!
         "add_date":A.getAttribute("ADD_DATE") or 0,
         "last_visit":A.getAttribute("LAST_VISIT") or 0,
